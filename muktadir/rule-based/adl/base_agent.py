@@ -13,3 +13,28 @@ class BaseAgent():
 
     def debug(self, msg):
         self.logger.debug(msg)
+
+    #region early setup methods
+    @property
+    def factoriesToPlace(self, game_state: GameState):
+        return game_state.teams[self.player].factories_to_place
+    
+    def isMyturn(self, game_state: GameState, step: int) -> bool:
+        """Only called during the early_setup when agents take bidding/factory placement actions in turns.
+
+        Args:
+            game_state (GameState): _description_
+            step (int): _description_
+
+        Returns:
+            bool: _description_
+        """
+        if game_state.teams[self.player].place_first:
+            if step % 2 == 1:
+                return True
+        else:
+            if step % 2 == 0:
+                return True
+        return False
+    
+    #endregion

@@ -1,5 +1,5 @@
 from .base_agent import BaseAgent
-from adl.early_setup_traits import *
+from adl.setups import *
 from adl.acts import *
 from adl.agent_compositions import *
 

@@ -1,4 +1,14 @@
 import numpy as np
+from lux.unit import Unit
+from dataclasses import dataclass, field
+from typing import Dict
+import numpy as np
+from lux.cargo import UnitCargo
+from lux.config import EnvConfig
+from lux.team import Team, FactionTypes
+from lux.unit import Unit
+from lux.factory import Factory
+from lux.kit import GameState, Board
 
 def animate(imgs, _return=True):
     # using cv2 to generate videos as moviepy doesn't work on kaggle notebooks
@@ -53,3 +63,60 @@ def interact(env, agents, steps):
         done = dones["player_0"] and dones["player_1"]
     # print(env.state.real_env_steps)
     return animate(imgs), obs
+
+
+def obs_to_game_state_fast(step, env_cfg: EnvConfig, obs, prevState: GameState):
+    
+    units = dict()
+    for agent in obs["units"]:
+        units[agent] = dict()
+        for unit_id in obs["units"][agent]:
+            unit_data = obs["units"][agent][unit_id]
+            cargo = UnitCargo(**unit_data["cargo"])
+            unit = Unit(
+                **unit_data,
+                unit_cfg=env_cfg.ROBOTS[unit_data["unit_type"]],
+                env_cfg=env_cfg
+            )
+            unit.cargo = cargo
+            units[agent][unit_id] = unit
+            
+
+    factory_occupancy_map = np.ones_like(obs["board"]["rubble"], dtype=int) * -1 # TODO can be cached
+    factories = dict() # factories should be updated and removed
+    for agent in obs["factories"]:
+        factories[agent] = dict()
+        for unit_id in obs["factories"][agent]:
+            f_data = obs["factories"][agent][unit_id]
+            cargo = UnitCargo(**f_data["cargo"])
+            factory = Factory(
+                **f_data,
+                env_cfg=env_cfg
+            )
+            factory.cargo = cargo
+            factories[agent][unit_id] = factory
+            factory_occupancy_map[factory.pos_slice] = factory.strain_id
+    teams = dict()
+    for agent in obs["teams"]:
+        team_data = obs["teams"][agent]
+        faction = FactionTypes[team_data["faction"]]
+        teams[agent] = Team(**team_data, agent=agent) # teams TODO should be updated
+
+    return GameState(
+        env_cfg=env_cfg,
+        env_steps=step,
+        board=Board(
+            rubble=obs["board"]["rubble"],
+            ice=obs["board"]["ice"],
+            ore=obs["board"]["ore"],
+            lichen=obs["board"]["lichen"],
+            lichen_strains=obs["board"]["lichen_strains"],
+            factory_occupancy_map=factory_occupancy_map,
+            factories_per_team=obs["board"]["factories_per_team"],
+            valid_spawns_mask=obs["board"]["valid_spawns_mask"]
+        ),
+        units=units,
+        factories=factories,
+        teams=teams
+
+    )
