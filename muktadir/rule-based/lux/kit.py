@@ -132,6 +132,12 @@ class GameState:
     units: Dict[str, Dict[str, Unit]] = field(default_factory=dict)
     factories: Dict[str, Dict[str, Factory]] = field(default_factory=dict)
     teams: Dict[str, Team] = field(default_factory=dict)
+
+    # private props added by Muktadir
+    _ice_locations: np.ndarray = None
+    _ore_locations: np.ndarray = None
+
+
     @property
     def real_env_steps(self):
         """
@@ -147,4 +153,21 @@ class GameState:
     # various utility functions
     def is_day(self):
         return self.real_env_steps % self.env_cfg.CYCLE_LENGTH < self.env_cfg.DAY_LENGTH
+    
+    # utility functions added by Muktadir
+    @property
+    def iceLocations(self):
+        if self._ice_locations is None:
+            self._ice_locations = np.argwhere(self.board.ice == 1)
+        return self._ice_locations
+        
+    @property
+    def oreLocations(self):
+        if self._ore_locations is None:
+            self._ore_locations = np.argwhere(self.board.ore == 1)
+        return self._ore_locations
+        
+
+    
+
 

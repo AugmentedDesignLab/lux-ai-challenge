@@ -11,8 +11,20 @@ class BaseAgent():
         self.env_cfg: EnvConfig = env_cfg
         self.logger = logging.getLogger(self.player)
 
+        # these props can only be read after setup
+        self._ice_locations: np.ndarray = None
+        self._ore_locations: np.ndarray = None
+
     def debug(self, msg):
         self.logger.debug(msg)
+        
+    @property
+    def iceLocations(self):
+        return self._ice_locations
+        
+    @property
+    def oreLocations(self):
+        return self._ore_locations
 
     #region early setup methods
     def factoriesToPlace(self, game_state: GameState):
@@ -35,5 +47,19 @@ class BaseAgent():
             if step % 2 == 0:
                 return True
         return False
+
+
+    def cacheInvariants(self, game_state: GameState):
+        self._ice_locations = np.argwhere(game_state.board.ice == 1)
+        self._ore_locations = np.argwhere(game_state.board.ore == 1)
+        # distance to ice and ore from factory is fixed
+
+
+    def distanceToIceLocations(self, fromPos:np.ndarray) -> np.ndarray:
+        return np.mean((self.iceLocations - fromPos) ** 2, 1)
+    
+    def closestIceFrom(self, fromPos:np.ndarray) -> np.ndarray:
+        return self.iceLocations[np.argmin(self.distanceToIceLocations(fromPos))]
+    
     
     #endregion

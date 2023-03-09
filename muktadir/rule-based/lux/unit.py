@@ -61,6 +61,7 @@ class Unit:
     
     def dig_cost(self, game_state):
         return self.unit_cfg.DIG_COST
+
     def dig(self, repeat=0, n=1):
         return np.array([3, 0, 0, 0, repeat, n])
 

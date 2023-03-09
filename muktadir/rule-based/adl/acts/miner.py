@@ -20,8 +20,10 @@ def miner_act(self, step: int, obs, remainingOverageTime: int = 60):
     factory_tiles = np.array(factory_tiles)
 
     units = game_state.units[self.player]
-    ice_map = game_state.board.ice
-    ice_tile_locations = np.argwhere(ice_map == 1)
+    # ice_map = game_state.board.ice
+    # ice_tile_locations = np.argwhere(ice_map == 1)
+    ice_tile_locations = self.iceLocations
+
     for unit_id, unit in units.items():
 
         # track the closest factory
@@ -35,8 +37,10 @@ def miner_act(self, step: int, obs, remainingOverageTime: int = 60):
 
             # previous ice mining code
             if unit.cargo.ice < 40:
-                ice_tile_distances = np.mean((ice_tile_locations - unit.pos) ** 2, 1)
-                closest_ice_tile = ice_tile_locations[np.argmin(ice_tile_distances)]
+                # ice_tile_distances = np.mean((ice_tile_locations - unit.pos) ** 2, 1)
+                # ice_tile_distances = self.distanceToIceLocations(unit.pos)
+                # closest_ice_tile = ice_tile_locations[np.argmin(ice_tile_distances)]
+                closest_ice_tile = self.closestIceFrom(unit.pos)
                 if np.all(closest_ice_tile == unit.pos):
                     if unit.power >= unit.dig_cost(game_state) + unit.action_queue_cost(game_state):
                         actions[unit_id] = [unit.dig(repeat=0)]
