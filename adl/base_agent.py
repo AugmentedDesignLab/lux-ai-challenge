@@ -60,6 +60,12 @@ class BaseAgent():
     
     def closestIceFrom(self, fromPos:np.ndarray) -> np.ndarray:
         return self.iceLocations[np.argmin(self.distanceToIceLocations(fromPos))]
+
+    def distanceToOreLocations(self, fromPos:np.ndarray) -> np.ndarray:
+        return np.mean((self.oreLocations - fromPos) ** 2, 1)
+    
+    def closestOreFrom(self, fromPos:np.ndarray) -> np.ndarray:
+        return self.oreLocations[np.argmin(self.distanceToOreLocations(fromPos))]
     
     
     #endregion

@@ -56,4 +56,14 @@ DumbAgent.act = dumb_act
 # endregion
 ```
 
-Test your agent using the notebook in the root.
+Test your agent using the notebook in the root. 
+
+# Utility methods
+
+## BaseAgent:
+1. factoriesToPlace
+2. isMyTurn
+3. distanceToIceLocations
+4. closestIceFrom
+5. distanceToOreLocations
+6. closestOreFrom
