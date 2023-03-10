@@ -1,8 +1,9 @@
 import numpy as np
 from lux.kit import obs_to_game_state, GameState, EnvConfig, Team
 from lux.utils import direction_to, my_turn_to_place_factory
+from typing import *
 
-def miner_act(self, step: int, obs, remainingOverageTime: int = 60):
+def miner_act(self, step: int, obs, remainingOverageTime: int = 60) -> Dict[str, Union[int, List[any]]]:
     actions = dict()
     game_state = obs_to_game_state(step, self.env_cfg, obs)
     factories = game_state.factories[self.player]

@@ -26,4 +26,34 @@ DumbAgent.act = miner_act
 # endregion
 ```
 
-Let's say we want to add a new "act" behavior.
+Let's say we want to add a new "act" behavior. The acts and setups are inside the [adl](./adl) folder. You can define the act method follow any of the existing one. Make sure you give it a unique name and export it in the __init__.py file in the folder. The act must follow the following signature
+
+adl/acts/dumb_act.py
+```
+def dumb_act(self, step: int, obs, remainingOverageTime: int = 60) -> Dict[str, Union[int, List[any]]]:
+    pass
+```
+
+adl/__init__.py
+```
+...
+...
+from .dumb_act import *
+```
+
+Now we can update our DumbAgent's behavior in [agent_compositions.py](./adl/agent_compositions.py).
+
+```
+
+# region DumbAgent
+
+class DumbAgent(BaseAgent):
+    pass
+
+DumbAgent.early_setup = early_setup_no_bid
+DumbAgent.act = dumb_act
+
+# endregion
+```
+
+Test your agent using the notebook in the root.
