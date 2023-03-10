@@ -12,48 +12,82 @@ class BoardAnalyzer:
     
     def getFactoryBinaryOccupancy(self, board: Board) -> np.array:
         return board.factory_occupancy_map > -1
-    
-    def getLichenUBBeforeFactoryPlacement(self, game_state: GameState, subtractRubbles=False) -> int:
-        
-        board = game_state.board
 
+    def getGrowableTiles(self, board: Board, subtractRubbles=False) -> int:
+        
         occupied = np.logical_or(board.ice, board.ore)
         occupied = np.logical_or(occupied, self.getFactoryBinaryOccupancy(board)) # or we can just subtract totalFactories
 
         if subtractRubbles:
             occupied = np.logical_or(occupied, board.rubble)
         
-        growableTiles = self.totalTiles(board) - np.sum(occupied)
-
-        waterProductionRate = Utils.getMaxWaterProductionRatePerFactory(game_state)
+        return self.totalTiles(board) - np.sum(occupied)
 
 
-        factoryCapacity = board.factories_per_team * 2 * (waterProductionRate -1) * game_state.env_cfg.LICHEN_WATERING_COST_FACTOR
+    def getLichenUBBeforeBidding(self, game_state: GameState, subtractRubbles=False) -> int:
+        """Returns the maximum # lichens based on the maximum number of factories by both players and the number of available growable tiles
 
-        print(board.factories_per_team * 2, growableTiles, factoryCapacity)
+        Args:
+            game_state (GameState): _description_
+            subtractRubbles (bool, optional): _description_. Defaults to False.
 
-        return min(growableTiles, factoryCapacity)
-    
-    def getLichenUBAfterFactoryPlacement(self, game_state: GameState, subtractRubbles=False) -> int:
+        Returns:
+            int: _description_
+        """
         
         board = game_state.board
 
-        occupied = np.logical_or(board.ice, board.ore)
-        occupied = np.logical_or(occupied, self.getFactoryBinaryOccupancy(board)) # or we can just subtract totalFactories
-
-        if subtractRubbles:
-            occupied = np.logical_or(occupied, board.rubble)
-        
-        growableTiles = self.totalTiles(board) - np.sum(occupied)
+        growableTiles = self.getGrowableTiles(board)
 
         waterProductionRate = Utils.getMaxWaterProductionRatePerFactory(game_state)
+        factoryCapacity = board.factories_per_team * 2 * Utils.waterProductionRateToLichen(game_state, waterProductionRate)
 
-
-        factoryCapacity = self.totalFactories(board) * (waterProductionRate -1) * game_state.env_cfg.LICHEN_WATERING_COST_FACTOR
-
-        print(self.totalFactories(board), growableTiles, factoryCapacity)
+        # print(board.factories_per_team * 2, growableTiles, factoryCapacity)
 
         return min(growableTiles, factoryCapacity)
+    
+    def getLichenUBAfterAfterBidding(self, game_state: GameState, subtractRubbles=False) -> int:
+        """Returns the maximum # lichens based on the number of all the factories placed so far by both players and the number of available growable tiles
+
+        Args:
+            game_state (GameState): _description_
+            subtractRubbles (bool, optional): _description_. Defaults to False.
+
+        Returns:
+            int: _description_
+        """
+        
+        board = game_state.board
+        
+        growableTiles = self.getGrowableTiles(board)
+
+        waterProductionRate = Utils.getMaxWaterProductionRatePerFactory(game_state)
+        factoryCapacity = self.totalFactories(board) * Utils.waterProductionRateToLichen(game_state, waterProductionRate)
+
+        # print(self.totalFactories(board), growableTiles, factoryCapacity)
+
+        return min(growableTiles, factoryCapacity)
+    
+    def getLichenUBAfterAfterBiddingByPlayer(self, player: str, game_state: GameState, subtractRubbles=False) -> int:
+        """Returns the maximum # lichens based on the number of factories the player has and the number of available growable tiles
+
+        Args:
+            player (str): _description_
+            game_state (GameState): _description_
+            subtractRubbles (bool, optional): _description_. Defaults to False.
+
+        Returns:
+            int: _description_
+        """
+
+        board = game_state.board
+        growableTiles = self.getGrowableTiles(board)
+
+        waterProductionRate = Utils.getMaxWaterProductionRatePerFactory(game_state)
+        factoryCapacity = len(game_state.factories[player]) * Utils.waterProductionRateToLichen(game_state, waterProductionRate)
+
+        return min(growableTiles, factoryCapacity)
+
 
 
 

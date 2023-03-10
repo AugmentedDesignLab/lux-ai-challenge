@@ -15,3 +15,7 @@ class Utils:
     @staticmethod
     def getMaxMetalProductionRatePerFactory(game_state: GameState) -> int:
         return game_state.env_cfg.FACTORY_PROCESSING_RATE_METAL / game_state.env_cfg.ORE_METAL_RATIO
+    
+    @staticmethod
+    def waterProductionRateToLichen(game_state: GameState, waterProductionRate: int) -> int:
+        return (waterProductionRate -1) * game_state.env_cfg.LICHEN_WATERING_COST_FACTOR
