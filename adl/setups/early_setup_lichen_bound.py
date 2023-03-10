@@ -63,7 +63,7 @@ def early_setup_lichen_bound(self: BaseAgent, step: int, obs, remainingOverageTi
             print("potential spawn", len(potential_spawns))
             spawn_loc = potential_spawns[np.random.randint(0, len(potential_spawns))]
             # self.logger.info(f"Early Setup:  lichen UB {self.player}: {self.boardAnalyzer.getLichenUBAfterAfterBiddingByPlayer(self.player, game_state)}")
-            # return dict(spawn=spawn_loc, metal=resourcePerFactory, water=resourcePerFactory)
-            return dict(spawn=spawn_loc, metal=150, water=150)
+            return dict(spawn=spawn_loc, metal=resourcePerFactory, water=resourcePerFactory)
+            # return dict(spawn=spawn_loc, metal=150, water=150)
     
     return dict()
