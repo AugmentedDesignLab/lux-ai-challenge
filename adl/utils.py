@@ -19,3 +19,9 @@ class Utils:
     @staticmethod
     def waterProductionRateToLichen(game_state: GameState, waterProductionRate: int) -> int:
         return (waterProductionRate -1) * game_state.env_cfg.LICHEN_WATERING_COST_FACTOR
+    
+    @staticmethod
+    def factoryToLichen(game_state: GameState, nFactory: int) -> int:
+        waterProductionRatePerFactory = Utils.getMaxWaterProductionRatePerFactory(game_state)
+        return nFactory * Utils.waterProductionRateToLichen(game_state, waterProductionRatePerFactory)
+    

@@ -9,9 +9,9 @@ def miner_act(self, step: int, obs, remainingOverageTime: int = 60):
     game_state.teams[self.player].place_first
     factory_tiles, factory_units = [], []
     for unit_id, factory in factories.items():
-        if factory.power >= self.env_cfg.ROBOTS["HEAVY"].POWER_COST and \
-        factory.cargo.metal >= self.env_cfg.ROBOTS["HEAVY"].METAL_COST:
+        if factory.can_build_heavy(game_state):
             actions[unit_id] = factory.build_heavy()
+            self.logger.info("{self.player} Building a heavy")
         if self.env_cfg.max_episode_length - game_state.real_env_steps < 50:
             if factory.water_cost(game_state) <= factory.cargo.water:
                 actions[unit_id] = factory.water()

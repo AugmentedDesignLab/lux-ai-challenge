@@ -4,7 +4,7 @@ from adl.utils import Utils
 class BoardAnalyzer:
 
     
-    def totalFactories(self, board: Board) -> int:
+    def totalFactoriesPlaced(self, board: Board) -> int:
         return len(np.unique(board.factory_occupancy_map)) - 1
 
     def totalTiles(self, board: Board) -> int:
@@ -16,7 +16,7 @@ class BoardAnalyzer:
     def getGrowableTiles(self, board: Board, subtractRubbles=False) -> int:
         
         occupied = np.logical_or(board.ice, board.ore)
-        occupied = np.logical_or(occupied, self.getFactoryBinaryOccupancy(board)) # or we can just subtract totalFactories
+        occupied = np.logical_or(occupied, self.getFactoryBinaryOccupancy(board)) # or we can just subtract totalFactoriesPlaced
 
         if subtractRubbles:
             occupied = np.logical_or(occupied, board.rubble)
@@ -41,6 +41,7 @@ class BoardAnalyzer:
 
         waterProductionRate = Utils.getMaxWaterProductionRatePerFactory(game_state)
         factoryCapacity = board.factories_per_team * 2 * Utils.waterProductionRateToLichen(game_state, waterProductionRate)
+        factoryCapacity = Utils.factoryToLichen(game_state, board.factories_per_team * 2)
 
         # print(board.factories_per_team * 2, growableTiles, factoryCapacity)
 
@@ -61,10 +62,7 @@ class BoardAnalyzer:
         
         growableTiles = self.getGrowableTiles(board)
 
-        waterProductionRate = Utils.getMaxWaterProductionRatePerFactory(game_state)
-        factoryCapacity = self.totalFactories(board) * Utils.waterProductionRateToLichen(game_state, waterProductionRate)
-
-        # print(self.totalFactories(board), growableTiles, factoryCapacity)
+        factoryCapacity = Utils.factoryToLichen(game_state, self.totalFactoriesPlaced(board))
 
         return min(growableTiles, factoryCapacity)
     
@@ -83,8 +81,7 @@ class BoardAnalyzer:
         board = game_state.board
         growableTiles = self.getGrowableTiles(board)
 
-        waterProductionRate = Utils.getMaxWaterProductionRatePerFactory(game_state)
-        factoryCapacity = len(game_state.factories[player]) * Utils.waterProductionRateToLichen(game_state, waterProductionRate)
+        factoryCapacity = Utils.factoryToLichen(game_state, len(game_state.factories[player]))
 
         return min(growableTiles, factoryCapacity)
 

@@ -30,7 +30,7 @@ def animate(imgs, _return=True):
         return Video(video_name)
 def interact(env, agents, steps):
     # reset our env
-    obs = env.reset(seed=41)
+    obs = env.reset(seed=1)
     np.random.seed(0)
     imgs = []
     step = 0
@@ -43,7 +43,7 @@ def interact(env, agents, steps):
         actions = {}
         for player in env.agents:
             o = obs[player]
-            print(f"early setup {player} at step {step}")
+            # print(f"early setup {player} at step {step}")
             a = agents[player].early_setup(step, o)
             actions[player] = a
         step += 1

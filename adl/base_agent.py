@@ -19,6 +19,7 @@ class BaseAgent():
         self._ice_locations: np.ndarray = None
         self._ore_locations: np.ndarray = None
 
+
     def debug(self, msg):
         self.logger.debug(msg)
         

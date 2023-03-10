@@ -9,7 +9,8 @@ class MinerAgent(BaseAgent):
 
 # region traits
 
-MinerAgent.early_setup = early_setup_no_bid
+# MinerAgent.early_setup = early_setup_no_bid
+MinerAgent.early_setup = early_setup_lichen_bound
 MinerAgent.act = miner_act
 
 # endregion

@@ -166,6 +166,10 @@ class GameState:
         if self._ore_locations is None:
             self._ore_locations = np.argwhere(self.board.ore == 1)
         return self._ore_locations
+    
+    @property
+    def maxFactoriesPerPlayer(self):
+        return self.board.factories_per_team
         
 
     
