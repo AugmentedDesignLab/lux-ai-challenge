@@ -10,7 +10,7 @@ from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans
 
 from adl.board_analysis import BoardAnalyzer
-from lux.kit import GameState, obs_to_game_state
+from lux.kit import GameState, Board, obs_to_game_state
 
 @dataclass
 class MapStat:
@@ -38,20 +38,25 @@ class MapStatsManager:
     
     def collectMapStats(self, game_state: GameState) -> MapStat:
         idealDiameter = self.boardAnalyzer.idealDiameter(game_state)
-        interCluserDistance = idealDiameter // 2
+        interClusterDistance = idealDiameter // 2
         return MapStat(
             nIceTiles = np.sum(game_state.board.ice),
             nOreTiles = np.sum(game_state.board.ore),
             nHighRubble = np.sum(game_state.board.rubble > 50),
             nLowRubble = np.sum(game_state.board.rubble <= 50),
-            nIceCluser = self.getResourceCluster(game_state.board.ice, interCluserDistance, game_state.maxFactoriesPerPlayer * 2),
-            nOreCluser = self.getResourceCluster(game_state.board.ore == 1, interCluserDistance, game_state.maxFactoriesPerPlayer * 2)
+            nIceCluser = self.getResourceCluster(game_state.board.ice, interClusterDistance, game_state.maxFactoriesPerPlayer * 2),
+            nOreCluser = self.getResourceCluster(game_state.board.ore, interClusterDistance, game_state.maxFactoriesPerPlayer * 2)
         )
     
-    def getResourceCluster(self, resourceMap: np.ndarray, interCluserDistance: int, maxFactories: int) -> Dict[np.ndarray, int]:
+    def getResourceCluster(self, game_state: GameState) -> Dict[np.ndarray, int]:
         """
-        we return clusters where distortion <= interCluserDistance
+        we return clusters where distortion <= interClusterDistance
         """
+        board = game_state.board
+        maxFactories = game_state.maxFactoriesPerPlayer * 2
+        idealDiameter = self.boardAnalyzer.idealDiameter(game_state)
+        interClusterDistance = idealDiameter // 2
+
 
         clusterMembership = defaultdict()
         currentClusters = [] # list of lists
@@ -60,7 +65,9 @@ class MapStatsManager:
         distMapping = {}
         models = {}
 
-        X = np.argwhere(resourceMap == 1)
+        resourceMap = np.logical_or(board.ice, board.ore)
+
+        X = np.argwhere(resourceMap == True)
 
         maxK = min(int(np.sum(resourceMap)), maxFactories)
         K = range(1, maxK+1)
@@ -82,7 +89,7 @@ class MapStatsManager:
             self.logger.info(f'{key} : {val}')
 
             bestK = key
-            if val < interCluserDistance:
+            if val < interClusterDistance:
                 break
 
         self.logger.info(f'best K : {bestK}')
@@ -98,7 +105,8 @@ class MapStatsManager:
         print("centerIdxFreq", centerIdxFreq)
 
         for centerIdx, n in centerIdxFreq.items():
-            clutersSizes[centers[centerIdx]] = n
+            center = tuple(centers[centerIdx])
+            clutersSizes[center] = n
 
 
 
@@ -106,6 +114,9 @@ class MapStatsManager:
         # return
         # cluster centers, # of resources in each cluster.
         return clutersSizes
+
+    
+
 
 
     
