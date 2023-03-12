@@ -2,6 +2,7 @@ from collections import defaultdict, Counter
 from dataclasses import dataclass
 from luxai_s2.env import LuxAI_S2
 import logging
+import math
 import numpy as np
 from typing import *
 
@@ -12,14 +13,17 @@ from sklearn.cluster import KMeans
 from adl.board_analysis import BoardAnalyzer
 from lux.kit import GameState, Board, obs_to_game_state
 
+ClusterType = Dict[np.ndarray, Dict[str, int]]
+
 @dataclass
 class MapStat:
     nIceTiles: int
     nOreTiles: int
     nHighRubble: int
     nLowRubble: int
-    nIceCluser: int
-    nOreCluser: int
+    iceClusters: ClusterType
+    oreClusters: ClusterType
+    resourceClusters: ClusterType
         
 
 
@@ -44,11 +48,12 @@ class MapStatsManager:
             nOreTiles = np.sum(game_state.board.ore),
             nHighRubble = np.sum(game_state.board.rubble > 50),
             nLowRubble = np.sum(game_state.board.rubble <= 50),
-            nIceCluser = self.getResourceCluster(game_state.board.ice, interClusterDistance, game_state.maxFactoriesPerPlayer * 2),
-            nOreCluser = self.getResourceCluster(game_state.board.ore, interClusterDistance, game_state.maxFactoriesPerPlayer * 2)
+            iceClusters = self.getResourceCluster(game_state, "ice"),
+            oreClusters = self.getResourceCluster(game_state, "ore"),
+            resourceClusters = self.getResourceCluster(game_state)
         )
     
-    def getResourceCluster(self, game_state: GameState) -> Dict[np.ndarray, int]:
+    def getResourceCluster(self, game_state: GameState, rType=None) -> ClusterType:
         """
         we return clusters where distortion <= interClusterDistance
         """
@@ -57,15 +62,16 @@ class MapStatsManager:
         idealDiameter = self.boardAnalyzer.idealDiameter(game_state)
         interClusterDistance = idealDiameter // 2
 
-
-        clusterMembership = defaultdict()
-        currentClusters = [] # list of lists
-
         distortions = []
         distMapping = {}
         models = {}
 
-        resourceMap = np.logical_or(board.ice, board.ore)
+        if rType is None:
+            resourceMap = np.logical_or(board.ice, board.ore)
+        elif rType == "ice":
+            resourceMap = board.ice == 1
+        elif rType == "ore":
+            resourceMap = board.ore == 1
 
         X = np.argwhere(resourceMap == True)
 
@@ -74,8 +80,20 @@ class MapStatsManager:
 
         for k in K:
             # Building and fitting the model
-            kmeanModel = KMeans(n_clusters=k, n_init="auto").fit(X)
-            kmeanModel.fit(X)
+
+            # for each k, we try 5 different initializations
+            kmeanModel = None
+            minDistortion = math.inf
+            for randomState in range(5):
+                candidateModel = KMeans(n_clusters=k, n_init="auto", random_state=randomState).fit(X)
+                candidateModel.fit(X)
+                distortion = sum(np.min(cdist(X, candidateModel.cluster_centers_,
+                                                'euclidean'), axis=1)) / X.shape[0]
+                if distortion < minDistortion:
+                    minDistortion = distortion
+                    kmeanModel = candidateModel
+
+
             models[k] = kmeanModel
         
             distortions.append(sum(np.min(cdist(X, kmeanModel.cluster_centers_,
@@ -96,24 +114,28 @@ class MapStatsManager:
 
         # now we need the centers, and cluster sizes
         bestModel = models[bestK]
-        centers = bestModel.cluster_centers_
+        centers = [tuple(c) for c in bestModel.cluster_centers_.astype(int)]
 
         # now size of each cluster
-        clutersSizes = defaultdict()
-        membership = bestModel.predict(X)
-        centerIdxFreq = Counter(membership)
-        print("centerIdxFreq", centerIdxFreq)
 
+        clusters = defaultdict(lambda: defaultdict())
+        iceMembership = bestModel.predict(game_state.iceLocations)
+        oreMembership = bestModel.predict(game_state.oreLocations)
+
+        centerIdxFreq = Counter(iceMembership)
         for centerIdx, n in centerIdxFreq.items():
-            center = tuple(centers[centerIdx])
-            clutersSizes[center] = n
+            clusters[centers[centerIdx]] = {"ice": n}
+
+        centerIdxFreq = Counter(oreMembership)
+        for centerIdx, n in centerIdxFreq.items():
+            clusters[centers[centerIdx]]["ore"] = n
 
 
 
 
         # return
         # cluster centers, # of resources in each cluster.
-        return clutersSizes
+        return clusters
 
     
 
