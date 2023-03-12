@@ -20,8 +20,19 @@ class BaseAgent():
         self._ore_locations: np.ndarray = None
 
 
-    def debug(self, msg):
-        self.logger.debug(msg)
+    def debug(self, *msgs):
+        msg = ""
+        for m in msgs:
+            msg += " " + str(m)
+
+        self.logger.debug(f"{self.player}: {msg}")
+
+    def info(self, *msgs):
+        msg = ""
+        for m in msgs:
+            msg += " " + str(m)
+
+        self.logger.info(f"{self.player}: {msg}")
         
     @property
     def iceLocations(self):

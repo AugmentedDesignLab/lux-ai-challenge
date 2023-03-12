@@ -67,3 +67,6 @@ Test your agent using the notebook in the root.
 4. closestIceFrom
 5. distanceToOreLocations
 6. closestOreFrom
+
+## Utils
+1. addClustersToImg can add the clusters of resources.

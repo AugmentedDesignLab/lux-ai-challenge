@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from lux.kit import Board, GameState
 from adl.utils import Utils
 class BoardAnalyzer:
@@ -84,6 +85,14 @@ class BoardAnalyzer:
         factoryCapacity = Utils.factoryToLichen(game_state, len(game_state.factories[player]))
 
         return min(growableTiles, factoryCapacity)
+
+    
+    def idealDiameter(self, game_state: GameState) -> int:
+        """
+        returns a radius for ideal localion of ice/ore.
+        """
+        maxLichenPerFactory = Utils.factoryToLichen(game_state, 1)
+        return int(math.sqrt(maxLichenPerFactory - 9)) # 9 for factory area
 
 
 

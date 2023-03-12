@@ -24,4 +24,22 @@ class Utils:
     def factoryToLichen(game_state: GameState, nFactory: int) -> int:
         waterProductionRatePerFactory = Utils.getMaxWaterProductionRatePerFactory(game_state)
         return nFactory * Utils.waterProductionRateToLichen(game_state, waterProductionRatePerFactory)
+
+        
+
+    @staticmethod
+    def addClustersToImg(img: np.ndarray, clusters, color=255):
+        scaleFactor = int((img.shape[0] / 48))
+        padding = int(scaleFactor / 2)
+        for center in clusters:
+
+            centerX = int(center[0] * scaleFactor)
+            centerY = int(center[1] * scaleFactor)
+            print(center, centerX, centerY)
+
+            xSlice = slice(max(0, centerX - padding), min(640, centerX + padding))
+            ySlice = slice(max(0, centerY - padding), min(640, centerY + padding))
+
+            print(xSlice, ySlice)
+            img[ySlice, xSlice] = color
     

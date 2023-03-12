@@ -10,7 +10,7 @@ def early_setup_lichen_bound(self: BaseAgent, step: int, obs, remainingOverageTi
     game_state = obs_to_game_state(step, self.env_cfg, obs)
 
     if step == 0:
-        print("maxFactoriesPerPlayer", game_state.maxFactoriesPerPlayer)
+        self.info("maxFactoriesPerPlayer", game_state.maxFactoriesPerPlayer)
         # bid 0 to not waste resources bidding and declare as the default faction
         return dict(faction="AlphaStrike", bid=0)
     else:
@@ -42,10 +42,10 @@ def early_setup_lichen_bound(self: BaseAgent, step: int, obs, remainingOverageTi
 
             self.logger.info(f"{self.player} exiting factories {len(game_state.factories[self.player])}")
 
-            print("maxFactoriesPerPlayer", game_state.maxFactoriesPerPlayer)
-            print("targetLichens", targetLichens)
-            print("lichenPerFactory", Utils.factoryToLichen(game_state, 1))
-            print("factoriesNeeded", factoriesNeeded)
+            self.info("maxFactoriesPerPlayer", game_state.maxFactoriesPerPlayer)
+            self.info("targetLichens", targetLichens)
+            self.info("lichenPerFactory", Utils.factoryToLichen(game_state, 1))
+            self.info("factoriesNeeded", factoriesNeeded)
 
             totalWater = game_state.env_cfg.INIT_WATER_METAL_PER_FACTORY * game_state.maxFactoriesPerPlayer
 
@@ -56,11 +56,11 @@ def early_setup_lichen_bound(self: BaseAgent, step: int, obs, remainingOverageTi
             if self.factoriesToPlace == 1:
                 resourcePerFactory = water_left
 
-            print("resourcePerFactory", resourcePerFactory)
+            self.info("resourcePerFactory", resourcePerFactory)
 
             # we will spawn our factory in a random location with 150 metal and water if it is our turn to place
             potential_spawns = Utils.get_potential_spawns(obs)
-            print("potential spawn", len(potential_spawns))
+            self.info("potential spawn", len(potential_spawns))
             spawn_loc = potential_spawns[np.random.randint(0, len(potential_spawns))]
             # self.logger.info(f"Early Setup:  lichen UB {self.player}: {self.boardAnalyzer.getLichenUBAfterAfterBiddingByPlayer(self.player, game_state)}")
             return dict(spawn=spawn_loc, metal=resourcePerFactory, water=resourcePerFactory)
