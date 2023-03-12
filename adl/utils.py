@@ -35,11 +35,11 @@ class Utils:
 
             centerX = int(center[0] * scaleFactor)
             centerY = int(center[1] * scaleFactor)
-            print(center, centerX, centerY)
+            # print(center, centerX, centerY)
 
             xSlice = slice(max(0, centerX - padding), min(640, centerX + padding))
             ySlice = slice(max(0, centerY - padding), min(640, centerY + padding))
 
-            print(xSlice, ySlice)
+            # print(xSlice, ySlice)
             img[ySlice, xSlice] = color
     
