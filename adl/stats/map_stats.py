@@ -25,6 +25,16 @@ class MapStats:
     iceClusters: ClusterType
     oreClusters: ClusterType
     resourceClusters: ClusterType
+    factoriesPerPlayer: int
+    resourcePerPlayer: int
+    costLichen: int
+    costLight: int
+    costHeavy: int
+    costFactory: int
+    chargeFactory: int
+    chargeLight: int
+    chargeHeavy: int
+    
         
 
     

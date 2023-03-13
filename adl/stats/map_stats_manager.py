@@ -5,6 +5,9 @@ import logging
 import math
 import numpy as np
 from typing import *
+import os
+import dill
+os.environ["OMP_NUM_THREADS"] = '1'
 
 from sklearn import metrics
 from scipy.spatial.distance import cdist
@@ -21,12 +24,25 @@ class MapStatsManager:
         self.boardAnalyzer = BoardAnalyzer()
         self.seedStats = defaultdict() # seed -> stats
 
-    def generate(self, seedStart = 0, seedEnd =100):
+    def generate(self, seedStart = 0, seedEnd = 100):
         env = LuxAI_S2()
         for seed in range(seedStart, seedEnd):
             obs = env.reset(seed=seed) # resets an environment with a seed
             game_state = obs_to_game_state(0, env.state.env_cfg, obs["player_0"])
             self.seedStats[seed] = self.collectMapStats(game_state)
+        
+        self.flushStats(seedStart, seedEnd)
+        return True
+    
+    def flushStats(self, seedStart, seedEnd):
+        if not os.path.exists("./logs"):
+            os.mkdir("./logs")
+
+        with open(f"./logs/{seedStart}-{seedEnd-1}", "wb") as f:
+            dill.dump(self.seedStats, f)
+
+        
+
     
     def collectMapStats(self, game_state: GameState) -> MapStats:
         idealDiameter = self.boardAnalyzer.idealDiameter(game_state)
@@ -39,7 +55,16 @@ class MapStatsManager:
             nLowRubble = np.sum(game_state.board.rubble <= 50),
             iceClusters = self.getResourceCluster(game_state, "ice"),
             oreClusters = self.getResourceCluster(game_state, "ore"),
-            resourceClusters = self.getResourceCluster(game_state)
+            resourceClusters = self.getResourceCluster(game_state),
+            factoriesPerPlayer = game_state.maxFactoriesPerPlayer,
+            resourcePerPlayer = game_state.env_cfg.INIT_WATER_METAL_PER_FACTORY,
+            costLichen = game_state.env_cfg.LICHEN_WATERING_COST_FACTOR,
+            costLight = game_state.env_cfg.ROBOTS["LIGHT"].METAL_COST,
+            costHeavy = game_state.env_cfg.ROBOTS["HEAVY"].METAL_COST,
+            costFactory = game_state.env_cfg.FACTORY_WATER_CONSUMPTION,
+            chargeFactory = game_state.env_cfg.FACTORY_CHARGE,
+            chargeLight = game_state.env_cfg.ROBOTS["LIGHT"].CHARGE,
+            chargeHeavy = game_state.env_cfg.ROBOTS["HEAVY"].CHARGE,
         )
     
     def getInterClusterDistance(self, game_state: GameState) -> int:

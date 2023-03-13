@@ -5,6 +5,7 @@ replays
 __pycache__
 submission.tar.gz
 kaggle-environments
+logs/
 
 dist
 build
