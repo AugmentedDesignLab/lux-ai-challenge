@@ -34,6 +34,7 @@ class MapStatsManager:
         return MapStats(
             nIceTiles = np.sum(game_state.board.ice),
             nOreTiles = np.sum(game_state.board.ore),
+            nTotalRubble = np.sum(game_state.board.rubble),
             nHighRubble = np.sum(game_state.board.rubble > 50),
             nLowRubble = np.sum(game_state.board.rubble <= 50),
             iceClusters = self.getResourceCluster(game_state, "ice"),
@@ -126,11 +127,24 @@ class MapStatsManager:
             clusters[centers[centerIdx]]["closest_ore"] = Utils.closest(game_state.oreLocations, centers[centerIdx])
 
 
+        self.addRubbles(game_state, clusters, interClusterDistance)
 
 
         # return
         # cluster centers, # of resources in each cluster.
         return clusters
+
+
+    def addRubbles(self, game_state: GameState, clusters: ClusterType, interClusterDistance: int):
+        boardSize = game_state.board.ice.shape[0]
+        for center, info in clusters.items():
+            xSlice = slice(max(0, center[0] - interClusterDistance), min(boardSize, center[0] + interClusterDistance))
+            ySlice = slice(max(0, center[1] - interClusterDistance), min(boardSize, center[1] + interClusterDistance))
+            rubbles = game_state.board.rubble[xSlice, ySlice]
+            info["rubble"] = np.sum(rubbles)
+            # clusters[center] = info
+            # print(info)
+
 
     
 

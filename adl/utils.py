@@ -27,6 +27,7 @@ class Utils:
     
     @staticmethod
     def distanceToLocations(locations: np.ndarray, fromPos:np.ndarray) -> np.ndarray:
+        """manhattan distance"""
         return np.sum(np.abs(locations - fromPos), axis=1)
 
     @staticmethod
@@ -36,6 +37,7 @@ class Utils:
     
     @staticmethod
     def distance(a: np.ndarray, b: np.ndarray) -> float:
+        """manhattan distance"""
         return np.sum(np.abs(a - b))
 
         

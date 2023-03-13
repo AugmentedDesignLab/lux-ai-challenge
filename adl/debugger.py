@@ -1,4 +1,5 @@
-from adl.stats.map_stats import ClusterType
+from adl.stats.map_stats import ClusterType, MapStats
+from adl.utils import Utils
 from lux.factory import Factory
 from lux.unit import Unit
 from lux.kit import obs_to_game_state, GameState, EnvConfig, Team
@@ -51,12 +52,35 @@ class Debugger:
     def printOpponentStates(self, agent, step, obs):
         game_state = obs_to_game_state(step, agent.env_cfg, obs)
         self.printStateFromState(game_state, agent.opp_player)
+    
+    def printMapStats(self, mapStats: MapStats):
+        print("nIceTiles:", mapStats.nIceTiles)
+        print("nOreTiles:", mapStats.nOreTiles)
+        print("nTotalRubble:", mapStats.nTotalRubble)
+        print("nHighRubble:", mapStats.nHighRubble)
+        print("nLowRubble:", mapStats.nLowRubble)
+        
+        print("Ice Clusters:")
+        self.printClusters(mapStats.iceClusters)
+        print("Ore Clusters:")
+        self.printClusters(mapStats.oreClusters)
+        print("Resource Clusters:")
+        self.printClusters(mapStats.resourceClusters)
 
     def printClusters(self, clusters: ClusterType):
         for center, info in clusters.items():
             # print(info)
-            print("\tcenter:", center)
-            print("\tice:", info['ice'])
-            print("\tore:", info['ore'])
-            print("\tclosest_ice:", info['closest_ice'])
-            print("\tclosest_ore:", info['closest_ore'])
+            print(" center:", center)
+            if "ice" in info:
+                print("\tice:", info['ice'])
+                print("\tclosest_ice:", info['closest_ice'])
+                print("\tclosest_ice_distance:", Utils.distance(center, info['closest_ice']))
+            if "ore" in info:
+                print("\tore:", info['ore'])
+                print("\tclosest_ore:", info['closest_ore'])
+                print("\tclosest_ore_distance:", Utils.distance(center, info['closest_ore']))
+                
+            if "rubble" in info:
+                print("\trubble:", info['rubble'])
+                # print("\tclosest_ore:", info['closest_ore'])
+                # print("\tclosest_ore_distance:", Utils.distance(center, info['closest_ore']))

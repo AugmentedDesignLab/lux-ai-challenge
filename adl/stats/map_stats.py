@@ -19,6 +19,7 @@ ClusterType = Dict[np.ndarray, Dict[str, int]]
 class MapStats:
     nIceTiles: int
     nOreTiles: int
+    nTotalRubble: int
     nHighRubble: int
     nLowRubble: int
     iceClusters: ClusterType
