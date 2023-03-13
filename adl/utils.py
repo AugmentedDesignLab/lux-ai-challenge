@@ -27,7 +27,7 @@ class Utils:
     
     @staticmethod
     def distanceToLocations(locations: np.ndarray, fromPos:np.ndarray) -> np.ndarray:
-        return np.mean((locations - fromPos) ** 2, 1)
+        return np.sum(np.abs(locations - fromPos), axis=1)
 
     @staticmethod
     def closest(locations: np.ndarray, fromPos:np.ndarray) -> np.ndarray:
@@ -36,7 +36,7 @@ class Utils:
     
     @staticmethod
     def distance(a: np.ndarray, b: np.ndarray) -> float:
-        return np.mean((a - b) ** 2)
+        return np.sum(np.abs(a - b))
 
         
     
