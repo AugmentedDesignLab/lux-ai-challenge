@@ -1,3 +1,4 @@
+from adl.stats.map_stats import ClusterType
 from lux.factory import Factory
 from lux.unit import Unit
 from lux.kit import obs_to_game_state, GameState, EnvConfig, Team
@@ -50,3 +51,12 @@ class Debugger:
     def printOpponentStates(self, agent, step, obs):
         game_state = obs_to_game_state(step, agent.env_cfg, obs)
         self.printStateFromState(game_state, agent.opp_player)
+
+    def printClusters(self, clusters: ClusterType):
+        for center, info in clusters.items():
+            # print(info)
+            print("\tcenter:", center)
+            print("\tice:", info['ice'])
+            print("\tore:", info['ore'])
+            print("\tclosest_ice:", info['closest_ice'])
+            print("\tclosest_ore:", info['closest_ore'])

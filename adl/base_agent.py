@@ -1,4 +1,5 @@
 from adl.board_analysis import BoardAnalyzer
+from adl.utils import Utils
 from lux.kit import obs_to_game_state, GameState, EnvConfig
 from lux.utils import direction_to, my_turn_to_place_factory
 import numpy as np
@@ -72,16 +73,16 @@ class BaseAgent():
 
 
     def distanceToIceLocations(self, fromPos:np.ndarray) -> np.ndarray:
-        return np.mean((self.iceLocations - fromPos) ** 2, 1)
+        return Utils.distanceToLocations(self.iceLocations, fromPos)
     
     def closestIceFrom(self, fromPos:np.ndarray) -> np.ndarray:
-        return self.iceLocations[np.argmin(self.distanceToIceLocations(fromPos))]
+        return Utils.closest(self.iceLocations, fromPos)
 
     def distanceToOreLocations(self, fromPos:np.ndarray) -> np.ndarray:
-        return np.mean((self.oreLocations - fromPos) ** 2, 1)
+        return Utils.distanceToLocations(self.oreLocations, fromPos)
     
     def closestOreFrom(self, fromPos:np.ndarray) -> np.ndarray:
-        return self.oreLocations[np.argmin(self.distanceToOreLocations(fromPos))]
+        return Utils.closest(self.oreLocations, fromPos)
     
     
     #endregion
